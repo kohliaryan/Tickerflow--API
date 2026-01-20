@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  api:
+    build: .
+    container_name: ticketflow-backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+      - /app/.venv
+    env_file:
+      - .env
+    # NOTE: Ensure this matches your folder name (src vs app)
+    command: uvicorn src.main:app --host 0.0.0.0 --port 8000 --reload
+    depends_on:
+      - db
+    networks:
+      - ticketflow-network
+
+  db:
+    image: postgres:15-alpine
+    container_name: ticketflow-db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    env_file:
+      - .env
+    networks:
+      - ticketflow-network
+
+volumes:
+  postgres_data:
+
+# --- FIXED SECTION BELOW ---
+networks:
+  ticketflow-network:
