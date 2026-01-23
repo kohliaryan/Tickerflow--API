@@ -8,11 +8,9 @@ from sqlalchemy.ext.asyncio import (
 from sqlalchemy.orm import DeclarativeBase
 
 import os
-from dotenv import load_dotenv
 
 # 1️⃣ Database URL (Postgres + async driver)
 
-load_dotenv()
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 

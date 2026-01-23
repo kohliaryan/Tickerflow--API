@@ -1,22 +1,50 @@
 from datetime import datetime
-from sqlalchemy import String, func
-from sqlalchemy.orm import Mapped, mapped_column
+
+from pydantic import EmailStr
+from sqlalchemy import String, DateTime, func, Table, Column, ForeignKey
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+
 from src.database.database import Base
 
+user_roles=Table(
+    "user_roles",
+    Base.metadata,
+    Column("user_id", ForeignKey("users.id"), primary_key=True),
+    Column("role_id", ForeignKey("roles.id"), primary_key=True)
+)
+
+
 class User(Base):
+
     __tablename__ = "users"
 
-    id: Mapped[int] = mapped_column(primary_key=True, index=True)
+    id: Mapped[int] = mapped_column(primary_key=True, index=True, autoincrement=True)
+    email: Mapped[EmailStr] = mapped_column(String, unique=True, nullable=False, index=True)
+    password: Mapped[str] = mapped_column(String, nullable=False)
 
-    email: Mapped[str] = mapped_column(String(255), unique=True, nullable=False)
-
-    password: Mapped[str] = mapped_column(String(255), nullable=False)
-
-    created_at: Mapped[datetime] = mapped_column(
-        server_default=func.now(),
-        nullable=False
+    roles: Mapped[list["Role"]] = relationship(
+        secondary="user_roles",
+        back_populates="users",
+        lazy="selectin",
     )
 
-    # Add a __repr__ for easier debugging
-    def __repr__(self) -> str:
-        return f"<User(id={self.id}, email='{self.email}')>"
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+
+    def __repr__(self):
+        return f"<User(id={self.id}, email={self.email})>"
+
+class Role(Base):
+
+    __tablename__ = "roles"
+
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True, index=True)
+    name: Mapped[str] = mapped_column(String, unique=True, nullable=False, index=True)
+
+    users: Mapped[list["User"]] = relationship(
+        secondary=user_roles,
+        back_populates="roles",
+        lazy="selectin",
+    )
+
+    def __repr__(self):
+        return f"<Role(id={self.id}, name={self.name})>"
