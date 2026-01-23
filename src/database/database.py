@@ -17,7 +17,6 @@ DATABASE_URL = os.getenv("DATABASE_URL")
 # 2️⃣ Create async engine
 engine = create_async_engine(
     DATABASE_URL,
-    echo=True
 )
 
 # 3️⃣ Base class for models
