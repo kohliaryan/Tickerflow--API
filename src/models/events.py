@@ -1,5 +1,5 @@
 from datetime import datetime
-from sqlalchemy import String, DateTime, func
+from sqlalchemy import String, DateTime, func, Boolean
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.database.database import Base
@@ -11,11 +11,14 @@ class Event(Base):
     title: Mapped[str] = mapped_column(String, nullable=False)
     total_tickets: Mapped[int] = mapped_column(nullable=False)
     available_tickets: Mapped[int] = mapped_column(nullable=False)
+    price_in_rupee: Mapped[int] = mapped_column(nullable=False)
+    venue: Mapped[str] = mapped_column(String, nullable=False)
     event_date: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         server_default=func.now(),
         nullable=False,
     )
+    is_active: Mapped[bool]= mapped_column(Boolean, default=True)
 
     bookings: Mapped[list["Booking"]] = relationship(
         back_populates="event"
