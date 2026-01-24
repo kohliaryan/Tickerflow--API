@@ -22,3 +22,7 @@ class EventResponseSchema(BaseModel):
     total_tickets: int
     available_tickets: int
     event_date: datetime
+
+class EventUpdateSchema(BaseModel):
+    title: str
+    event_date: datetime
