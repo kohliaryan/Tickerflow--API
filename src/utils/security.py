@@ -2,15 +2,9 @@ from datetime import datetime, timezone, timedelta
 import os
 
 import jwt
-from fastapi import Depends, HTTPException
-from fastapi.openapi.models import OAuth2
-from fastapi.security import OAuth2PasswordBearer
-from passlib.context import CryptContext
-from sqlalchemy import select
-from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.database.database import get_db
-from src.models.users import User
+from passlib.context import CryptContext
+
 
 SECRET_KEY = os.getenv("SECRET_KEY")
 ALGORITHM = "HS256"

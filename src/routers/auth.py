@@ -5,7 +5,6 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.database.database import get_db
-from src.deps.auth import get_current_user
 from src.models.users import User, Role
 from src.schemas.schemas import AuthRequestSchema, TokenSchema
 from src.utils.security import hash_password, create_access_token, verify_password

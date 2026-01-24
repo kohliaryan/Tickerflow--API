@@ -13,5 +13,12 @@ class TokenSchema(BaseModel):
 
 class EventRequestSchema(BaseModel):
     title: str
-    total_ticket: int = Field(..., gt=0)
+    total_tickets: int = Field(..., gt=0)
+    event_date: datetime
+
+class EventResponseSchema(BaseModel):
+    id: int
+    title: str
+    total_tickets: int
+    available_tickets: int
     event_date: datetime
