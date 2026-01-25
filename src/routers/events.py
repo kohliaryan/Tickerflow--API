@@ -13,7 +13,7 @@ event_router = APIRouter()
 
 @event_router.get("/events", response_model=list[EventResponseSchema])
 async def get_events(db: AsyncSession=Depends(get_db)):
-    result = await db.execute(select(Event))
+    result = await db.execute(select(Event).where(Event.is_active==True))
     events = result.scalars().all()
 
     return events
@@ -72,3 +72,23 @@ async def update_route(
     await db.refresh(event)
 
     return event
+
+@event_router.delete("/event/{event_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_event(
+        event_id: int,
+        db: AsyncSession=Depends(get_db),
+        admin: User=Depends(get_current_admin)
+):
+    result = await db.execute(select(Event).where(Event.id==event_id))
+    event = result.scalars().one_or_none()
+
+    if event is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Invalid Event id")
+
+    if not event.is_active:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="No event found!")
+
+    event.is_active = False
+
+    await db.commit()
+
