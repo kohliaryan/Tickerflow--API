@@ -13,7 +13,9 @@ class TokenSchema(BaseModel):
 
 class EventRequestSchema(BaseModel):
     title: str
-    total_tickets: int = Field(..., gt=0)
+    total_tickets: int
+    price_in_rupee: int
+    venue: str
     event_date: datetime
 
 class EventResponseSchema(BaseModel):
@@ -21,8 +23,12 @@ class EventResponseSchema(BaseModel):
     title: str
     total_tickets: int
     available_tickets: int
+    price_in_rupee: int
+    venue: str
     event_date: datetime
 
 class EventUpdateSchema(BaseModel):
     title: str
+    price_in_rupee: int
+    venue: str
     event_date: datetime

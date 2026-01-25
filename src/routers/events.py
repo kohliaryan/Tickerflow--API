@@ -36,7 +36,14 @@ async def add_event(
     db: AsyncSession=Depends(get_db),
     admin: User=Depends(get_current_admin)
 ):
-    new_event = Event(title=data.title, total_tickets=data.total_tickets, available_tickets=data.total_tickets, event_date=data.event_date)
+    new_event = Event(
+        title=data.title,
+        total_tickets=data.total_tickets,
+        available_tickets=data.total_tickets,
+        price_in_rupee = data.price_in_rupee,
+        venue= data.venue,
+        event_date=data.event_date,
+    )
 
     db.add(new_event)
     await db.commit()
@@ -51,13 +58,15 @@ async def update_route(
         admin: User=Depends(get_current_admin),
 ):
     result = await db.execute(select(Event).where(Event.id==event_id))
-    event = result.scalars().one_or_none()
+    event = result.scalars().first()
 
     if event is None:
         raise HTTPException(status_code=400, detail="Invalid event id")
 
     event.title = data.title
     event.event_date = data.event_date
+    event.price_in_rupee = data.price_in_rupee
+    event.venue = data.venue
 
     await  db.commit()
     await db.refresh(event)
