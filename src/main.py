@@ -4,6 +4,7 @@ from fastapi import FastAPI
 
 from src.database.database import engine, Base, AsyncSessionLocal
 from src.routers.auth import auth_router
+from src.routers.bookings import booking_router
 from src.routers.events import event_router
 from src.scripts.seed_bookings import seed_bookings
 from src.scripts.seed_events import seed_events
@@ -32,3 +33,4 @@ def read_root():
 
 app.include_router(auth_router, prefix="/auth", tags=["Auth"])
 app.include_router(event_router, tags=["Event"])
+app.include_router(booking_router, tags=["Bookings"])
