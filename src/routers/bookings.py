@@ -10,7 +10,7 @@ from src.database.database import get_db
 from src.deps.auth import get_current_user
 from src.models import User, Event, Booking
 
-booking_router = APIRouter(prefix="bookings")
+booking_router = APIRouter(prefix="/bookings")
 
 @booking_router.post("/{event_id}/book", status_code=status.HTTP_201_CREATED)
 async def book_ticket(
@@ -50,6 +50,7 @@ async def book_ticket(
             )
 
             db.add(booking)
+            await db.commit()
 
     except IntegrityError:
         # UNIQUE (user_id, event_id) violated
@@ -81,7 +82,9 @@ async def delete_booking(
             detail="No booking found!"
         )
 
-    if booking.user_id != user.id:
+    is_admin = any(role.name == "admin" for role in user.roles)
+
+    if booking.user_id != user.id and not is_admin:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Not Permitted!"
@@ -102,7 +105,7 @@ async def delete_booking(
 
     cancellation_deadline = event.event_date - timedelta(hours=24)
 
-    if now >= cancellation_deadline:
+    if now >= cancellation_deadline and not is_admin:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Tickets cannot be cancelled within 24 hours of the event",
@@ -114,3 +117,26 @@ async def delete_booking(
     await db.commit()
 
     return
+
+@booking_router.get("/me")
+async def my_bookings(
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    result = await db.execute(
+        select(Booking, Event)
+        .where(Booking.user_id == user.id)
+        .join(Event, Booking.event_id == Event.id)
+        .order_by(Event.event_date)
+    )
+
+
+    return [
+        {
+            "booking_id": booking.id,
+            "event_id": event.id,
+            "title": event.title,
+            "event_date": event.event_date,
+        }
+        for booking, event in result.all()
+    ]
