@@ -59,7 +59,10 @@ async def book_ticket(
             detail="You have already booked this event",
         )
 
-    return {"msg": "Booked successfully"}
+    return {
+        "msg": "Booked successfully",
+        "booking_id": booking.id
+    }
 
 @booking_router.delete(
     "/{booking_id}",
@@ -72,6 +75,7 @@ async def delete_booking(
 ):
     result = await db.execute(
         select(Booking).where(Booking.id == booking_id)
+        .with_for_update()
     )
 
     booking = result.scalars().one_or_none()

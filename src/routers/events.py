@@ -20,7 +20,10 @@ async def get_events(db: AsyncSession=Depends(get_db)):
 
 @event_router.get("/event/{event_id}", response_model=EventResponseSchema)
 async def get_event(event_id: int, db: AsyncSession=Depends(get_db)):
-    result = await db.execute(select(Event).where(Event.id==event_id))
+    result = await db.execute(select(Event).where(
+        Event.id==event_id,
+        Event.is_active==True
+    ))
     event = result.scalars().one_or_none()
     if event is None:
         raise HTTPException(status_code=400, detail="Invalid event id")
